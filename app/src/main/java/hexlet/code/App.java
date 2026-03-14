@@ -1,7 +1,9 @@
 package hexlet.code;
 
-public class App {
-    public static void main(String[] args) {
+public final class App {
+    private App() { }
+
+    public static void main(final String[] args) {
         System.out.println("hello world");
     }
 }

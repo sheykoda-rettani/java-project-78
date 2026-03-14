@@ -19,8 +19,9 @@ public final class ValidatorTest {
 
     @Test
     public void testMinLengthValidation() {
+        final int minLength = 5;
         var validator = new Validator();
-        var schema = validator.string().minLength(5);
+        var schema = validator.string().minLength(minLength);
 
         assertFalse(schema.isValid("abcd"));
         assertTrue(schema.isValid("abcdef"));
@@ -37,8 +38,9 @@ public final class ValidatorTest {
 
     @Test
     public void testCombinedValidations() {
+        final int minLength = 6;
         var validator = new Validator();
-        var schema = validator.string().required().minLength(5).contains("hex");
+        var schema = validator.string().required().minLength(minLength).contains("hex");
 
         assertFalse(schema.isValid(""));
         assertFalse(schema.isValid(null));
@@ -49,8 +51,10 @@ public final class ValidatorTest {
 
     @Test
     public void testMultipleCallsOfSameMethod() {
+        final int minLength1 = 10;
+        final int minLength2 = 4;
         var validator = new Validator();
-        var schema = validator.string().minLength(10).minLength(4);
+        var schema = validator.string().minLength(minLength1).minLength(minLength2);
 
         assertFalse(schema.isValid("shor"));
         assertTrue(schema.isValid("thisIsLongEnough"));
@@ -68,24 +72,27 @@ public final class ValidatorTest {
 
     @Test
     public void testNullInputForValidators() {
+        final int minLength = 3;
         var validator = new Validator();
-        var schema = validator.string().required().minLength(3);
+        var schema = validator.string().required().minLength(minLength);
 
         assertFalse(schema.isValid(null));
     }
 
     @Test
     public void testEmptyStringForValidators() {
+        final int minLength = 3;
         var validator = new Validator();
-        var schema = validator.string().required().minLength(3);
+        var schema = validator.string().required().minLength(minLength);
 
         assertFalse(schema.isValid(""));
     }
 
     @Test
     public void testAllValidatorsPass() {
+        final int minLength = 7;
         var validator = new Validator();
-        var schema = validator.string().required().minLength(7).contains("world");
+        var schema = validator.string().required().minLength(minLength).contains("world");
 
         assertTrue(schema.isValid("Hello world!"));
     }
@@ -117,8 +124,9 @@ public final class ValidatorTest {
 
     @Test
     public void testMultipleConstraintsOrder() {
+        final int minLength = 5;
         var validator = new Validator();
-        var schema = validator.string().required().minLength(5).contains("test");
+        var schema = validator.string().required().minLength(minLength).contains("test");
 
         assertFalse(schema.isValid("tst"));
         assertFalse(schema.isValid("tes"));
