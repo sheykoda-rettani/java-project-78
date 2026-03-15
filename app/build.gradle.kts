@@ -3,6 +3,7 @@ plugins {
     id("application")
     id("checkstyle")
     id("org.sonarqube") version "7.1.0.6387"
+    id("jacoco")
 }
 
 group = "hexlet.code"
@@ -30,6 +31,15 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+tasks.jacocoTestReport {
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }

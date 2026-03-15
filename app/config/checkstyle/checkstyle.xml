@@ -14,7 +14,6 @@
             <property name="checkFirstSentence" value="false"/>
         </module>
         <module name="AbbreviationAsWordInName"/>
-        <module name="AbstractClassName"/>
         <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
         <module name="MethodParamPad"/>
@@ -43,7 +42,12 @@
         <module name="TrailingComment"/>
         <module name="SingleSpaceSeparator"/>
         <module name="ModifierOrder"/>
-        <module name="VisibilityModifier"/>
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="true"/>
+        </module>
+        <module name="AbstractClassName">
+            <property name="format" value="^Base.+$"/>
+        </module>
         <module name="FinalParameters"/>
         <module name="CyclomaticComplexity"/>
         <module name="NPathComplexity"/>
