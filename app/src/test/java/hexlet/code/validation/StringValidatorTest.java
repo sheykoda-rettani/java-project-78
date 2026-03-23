@@ -52,8 +52,8 @@ public final class StringValidatorTest {
 
     @Test
     public void testMultipleCallsOfSameMethod() {
-        final int minLength1 = 10;
-        final int minLength2 = 4;
+        final int minLength1 = 4;
+        final int minLength2 = 10;
         Validator validator = new Validator();
         StringSchema schema = validator.string().minLength(minLength1).minLength(minLength2);
 

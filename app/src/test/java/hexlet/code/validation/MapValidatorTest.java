@@ -2,8 +2,6 @@ package hexlet.code.validation;
 
 import hexlet.code.schemas.BaseSchema;
 import hexlet.code.schemas.MapSchema;
-import hexlet.code.schemas.StringSchema;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -13,92 +11,138 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public final class MapValidatorTest {
-    /**
-     * Для упрощения проверок - вынесен.
-     */
-    private Validator validator;
 
-    /**
-     * Для упрощения проверок - вынесена.
-     */
-    private MapSchema<String, String> schema;
-
-    @BeforeEach
-    void setUp() {
-        validator = new Validator();
-        schema = validator.map();
+    @Test
+    void validationPassesForNullByDefault() {
+        var validator = new Validator();
+        var schema = validator.map();
+        assertTrue(schema.isValid(null));
     }
 
     @Test
-    void testNullInput() {
-        assertTrue(schema.isValid(null));
-
-        schema.required();
+    void validationFailsForNullWhenRequired() {
+        var validator = new Validator();
+        var schema = validator.map().required();
         assertFalse(schema.isValid(null));
     }
 
     @Test
-    void testEmptyMap() {
-        Map<String, String> emptyMap = new HashMap<>();
+    void emptyMapIsValidByDefault() {
+        var validator = new Validator();
+        MapSchema schema = validator.map();
+        Map<Object, Object> emptyMap = new HashMap<>();
         assertTrue(schema.isValid(emptyMap));
+    }
 
+    @Test
+    void emptyMapIsValidWhenRequired() {
+        var validator = new Validator();
+        MapSchema schema = validator.map();
         schema.required();
+        Map<Object, Object> emptyMap = new HashMap<>();
         assertTrue(schema.isValid(emptyMap));
     }
 
     @Test
-    void testSizeOfOneEntry() {
-        Map<String, String> oneEntryMap = new HashMap<>();
-        oneEntryMap.put("key1", "value1");
-        assertTrue(schema.isValid(oneEntryMap));
+    void sizeValidationWorksCorrectly() {
+        var validator = new Validator();
+        MapSchema schema = validator.map();
 
-        schema.sizeof(1);
-        assertTrue(schema.isValid(oneEntryMap));
+        final int validSize = 1;
+        final int invalidSize = 2;
+
+        Map<Object, Object> testMap = new HashMap<>();
+        testMap.put("key1", "value1");
+
+        assertTrue(schema.isValid(testMap));
+
+        schema.sizeof(validSize);
+        assertTrue(schema.isValid(testMap));
+
+        schema.sizeof(invalidSize);
+        assertFalse(schema.isValid(testMap));
+
+        testMap.put("key2", "value2");
+        assertTrue(schema.isValid(testMap));
     }
 
     @Test
-    void testSizeOfTwoEntries() {
-        Map<String, String> twoEntryMap = new HashMap<>();
-        twoEntryMap.put("key1", "value1");
-        twoEntryMap.put("key2", "value2");
-        assertTrue(schema.isValid(twoEntryMap));
+    void shapeValidationPassesWhenAllFieldsAreCorrect() {
+        var validator = new Validator();
+        var schema = validator.map();
 
-        schema.sizeof(2);
-        assertTrue(schema.isValid(twoEntryMap));
+        final String firstNameKey = "firstName";
+        final String lastNameKey = "lastName";
+        final int minLastNameLength = 2;
+
+
+        Map<Object, BaseSchema<?>> shape = new HashMap<>();
+        shape.put(firstNameKey, validator.string().required());
+        shape.put(lastNameKey, validator.string().required().minLength(minLastNameLength));
+
+        schema.shape(shape);
+
+        Map<Object, Object> validData = new HashMap<>();
+        validData.put(firstNameKey, "John");
+        validData.put(lastNameKey, "Smith");
+
+        assertTrue(schema.isValid(validData));
     }
 
     @Test
-    void testInvalidSize() {
-        Map<String, String> invalidSizeMap = new HashMap<>();
-        invalidSizeMap.put("key1", "value1");
-        schema.sizeof(2);
-        assertFalse(schema.isValid(invalidSizeMap));
+    void shapeValidationFailsWhenRequiredFieldIsNull() {
+        var validator = new Validator();
+        var schema = validator.map();
+
+        final String firstNameKey = "firstName";
+
+        Map<Object, BaseSchema<?>> shape = new HashMap<>();
+        shape.put(firstNameKey, validator.string().required());
+
+        schema.shape(shape);
+
+        Map<Object, Object> invalidData = new HashMap<>();
+        invalidData.put(firstNameKey, null);
+
+        assertFalse(schema.isValid(invalidData));
     }
 
     @Test
-    void testBasicShapeValidation() {
-        final int lastNameLength = 2;
-        StringSchema firstNameSchema = validator.string().required();
-        StringSchema lastNameSchema = validator.string().required().minLength(lastNameLength);
+    void shapeValidationFailsWhenRequiredFieldIsMissing() {
+        var validator = new Validator();
+        var schema = validator.map();
 
-        Map<String, BaseSchema<String>> personShapes = new HashMap<>();
-        personShapes.put("firstName", firstNameSchema);
-        personShapes.put("lastName", lastNameSchema);
-        schema.shape(personShapes);
+        final String firstNameKey = "firstName";
 
-        Map<String, String> validHuman = new HashMap<>();
-        validHuman.put("firstName", "Alice");
-        validHuman.put("lastName", "Johnson");
-        assertTrue(schema.isValid(validHuman));
+        Map<Object, BaseSchema<?>> shape = new HashMap<>();
+        shape.put(firstNameKey, validator.string().required());
 
-        Map<String, String> invalidHuman1 = new HashMap<>();
-        invalidHuman1.put("firstName", "Bob");
-        invalidHuman1.put("lastName", "");
-        assertFalse(schema.isValid(invalidHuman1));
+        schema.shape(shape);
 
-        Map<String, String> invalidHuman2 = new HashMap<>();
-        invalidHuman2.put("firstName", "Charlie");
-        invalidHuman2.put("lastName", "J");
-        assertFalse(schema.isValid(invalidHuman2));
+        Map<Object, Object> invalidData = new HashMap<>();
+
+        assertFalse(schema.isValid(invalidData));
+    }
+
+    @Test
+    void lastShapeCallHasPriority() {
+        var validator = new Validator();
+        var schema = validator.map();
+
+        final String firstNameKey = "firstName";
+        final String lastNameKey = "lastName";
+
+        Map<Object, BaseSchema<?>> firstShape = new HashMap<>();
+        firstShape.put(firstNameKey, validator.string().required());
+
+        Map<Object, BaseSchema<?>> secondShape = new HashMap<>();
+        secondShape.put(lastNameKey, validator.string().required());
+
+        schema.shape(firstShape).shape(secondShape);
+
+        Map<Object, Object> data = new HashMap<>();
+        data.put(lastNameKey, "Smith");
+
+        assertTrue(schema.isValid(data));
     }
 }

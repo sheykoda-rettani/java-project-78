@@ -4,41 +4,45 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public final class MapSchema<K, V> extends BaseSchema<Map<K, V>> {
+public final class MapSchema extends BaseSchema<Map<Object, Object>> {
     /**
      * Хранит схемы для каждого поля.
      */
-    private final Map<K, BaseSchema<V>> shapes = new HashMap<>();
+    private final Map<Object, BaseSchema<?>> shapeSchemas = new HashMap<>();
 
-    public MapSchema<K, V> required() {
-        validators.add(Objects::nonNull);
+    public MapSchema required() {
+        addValidator("required", Objects::nonNull);
         return this;
     }
 
-    public MapSchema<K, V> sizeof(final int expectedSize) {
-        validators.add(map -> map != null && map.size() == expectedSize);
+    public MapSchema sizeof(final int expectedSize) {
+        addValidator("sizeOf", map -> map != null && map.size() == expectedSize);
         return this;
     }
 
-    public MapSchema<K, V> shape(final Map<K, ? extends BaseSchema<V>> keySchemas) {
-        shapes.putAll(keySchemas);
+    public MapSchema shape(final Map<Object, BaseSchema<?>> keySchemas) {
+        if (keySchemas != null && !keySchemas.isEmpty()) {
+            this.shapeSchemas.clear();
+            this.shapeSchemas.putAll(keySchemas);
+        }
         return this;
     }
 
     @Override
-    public boolean isValid(final Map<K, V> input) {
-        if (!super.isValid(input)) {
+    @SuppressWarnings("unchecked")
+    public boolean isValid(final Map<Object, Object> value) {
+        if (!super.isValid(value)) {
             return false;
         }
 
-        if (input != null) {
-            for (Map.Entry<K, V> entry : input.entrySet()) {
-                K key = entry.getKey();
-                V value = entry.getValue();
-                BaseSchema<V> schemaForKey = shapes.get(key);
-                if (schemaForKey != null && !schemaForKey.isValid(value)) {
-                    return false;
-                }
+        for (Map.Entry<Object, BaseSchema<?>> entry : shapeSchemas.entrySet()) {
+            final Object key = entry.getKey();
+            final BaseSchema<?> schema = entry.getValue();
+
+            final var fieldValue = value.get(key);
+
+            if (!((BaseSchema<Object>) schema).isValid(fieldValue)) {
+                return false;
             }
         }
 

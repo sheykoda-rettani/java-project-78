@@ -1,14 +1,15 @@
 package hexlet.code.schemas;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public abstract class BaseSchema<T> {
     /**
-     * Список валидаторов.
+     * Карта валидаторов, где ключ - маркер типа правила.
      */
-    protected final List<Predicate<T>> validators = new ArrayList<>();
+    private final Map<String, Predicate<T>> validators = new LinkedHashMap<>();
 
     /**
      * Проверка схемы на валидность.
@@ -16,11 +17,26 @@ public abstract class BaseSchema<T> {
      * @return результат валидации схемы
      */
     public boolean isValid(final T value) {
-        for (Predicate<T> validator : validators) {
-            if (!validator.test(value)) {
-                return false;
+        if (!validators.isEmpty()) {
+            for (Predicate<T> validator : validators.values()) {
+                if (!validator.test(value)) {
+                    return false;
+                }
             }
         }
+
         return true;
+    }
+
+    /**
+     * Защищенный метод для добавления/обновления валидатора в карте.
+     * Это позволяет дочерним классам управлять правилами единообразно.
+     * @param ruleName Имя правила (ключ)
+     * @param predicate Предикат-валидатор
+     */
+    protected void addValidator(final String ruleName, final Predicate<T> predicate) {
+        Objects.requireNonNull(ruleName);
+        Objects.requireNonNull(predicate);
+        validators.put(ruleName, predicate);
     }
 }
