@@ -1,0 +1,14 @@
+name: Set Executable Permissions
+
+on:
+  workflow_call:
+
+jobs:
+  set_perms:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+
+      - name: Set executable permission on gradlew inside the app directory
+        run: chmod +x ./app/gradlew
