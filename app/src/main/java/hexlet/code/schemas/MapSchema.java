@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public final class MapSchema extends BaseSchema<Map<Object, Object>> {
+public final class MapSchema<K, V> extends BaseSchema<Map<K, V>> {
     /**
      * Хранит схемы для каждого поля.
      */
@@ -30,7 +30,7 @@ public final class MapSchema extends BaseSchema<Map<Object, Object>> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean isValid(final Map<Object, Object> value) {
+    public boolean isValid(final Map<K, V> value) {
         if (!super.isValid(value)) {
             return false;
         }
