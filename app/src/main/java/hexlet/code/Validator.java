@@ -1,4 +1,4 @@
-package hexlet.code.validation;
+package hexlet.code;
 
 import hexlet.code.schemas.MapSchema;
 import hexlet.code.schemas.NumberSchema;
