@@ -32,6 +32,7 @@ public final class NumberValidatorTest {
         final int positive = 66;
         Validator validator = new Validator();
         NumberSchema schema = validator.number().positive();
+        assertTrue(schema.isValid(null));
         assertFalse(schema.isValid(negative));
         assertFalse(schema.isValid(zero));
         assertTrue(schema.isValid(positive));
