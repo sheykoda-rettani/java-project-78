@@ -1,15 +1,10 @@
 package hexlet.code.schemas;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public final class MapSchema<K, V> extends BaseSchema<Map<K, V>> {
-    /**
-     * Хранит схемы для каждого поля.
-     */
-    private final Map<Object, BaseSchema<?>> shapeSchemas = new HashMap<>();
-
     public MapSchema required() {
         addValidator("required", Objects::nonNull);
         return this;
@@ -21,31 +16,29 @@ public final class MapSchema<K, V> extends BaseSchema<Map<K, V>> {
     }
 
     public MapSchema shape(final Map<Object, BaseSchema<?>> keySchemas) {
-        if (keySchemas != null && !keySchemas.isEmpty()) {
-            this.shapeSchemas.clear();
-            this.shapeSchemas.putAll(keySchemas);
-        }
+        addValidator("shape", shapePredicate(keySchemas));
         return this;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public boolean isValid(final Map<K, V> value) {
-        if (!super.isValid(value)) {
-            return false;
-        }
-
-        for (Map.Entry<Object, BaseSchema<?>> entry : shapeSchemas.entrySet()) {
-            final Object key = entry.getKey();
-            final BaseSchema<?> schema = entry.getValue();
-
-            final var fieldValue = value.get(key);
-
-            if (!((BaseSchema<Object>) schema).isValid(fieldValue)) {
+    private Predicate<Map<K, V>> shapePredicate(final Map<Object, BaseSchema<?>> keySchemas) {
+        return map -> {
+            if (map == null) {
                 return false;
             }
-        }
+            if (keySchemas != null && !keySchemas.isEmpty()) {
+                for (Map.Entry<Object, BaseSchema<?>> entry : keySchemas.entrySet()) {
+                    final Object key = entry.getKey();
+                    final BaseSchema<?> schema = entry.getValue();
 
-        return true;
+                    final var fieldValue = map.get(key);
+
+                    if (!((BaseSchema<Object>) schema).isValid(fieldValue)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
     }
 }

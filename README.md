@@ -1,6 +1,6 @@
 # Проект "Валидатор данных"
 [![Actions Status](https://github.com/sheykoda-rettani/java-project-78/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/sheykoda-rettani/java-project-78/actions) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=sheykoda-rettani_java-project-78&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=sheykoda-rettani_java-project-78)  [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=sheykoda-rettani_java-project-78&metric=bugs)](https://sonarcloud.io/summary/new_code?id=sheykoda-rettani_java-project-78) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sheykoda-rettani_java-project-78&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sheykoda-rettani_java-project-78)
-Проект представляет собой библиотеку для валидации различных данных</br>
+Проект представляет собой библиотеку для валидации различных данных
 ## Поддерживаемые варианты валидации
 
 - Валидация строк.
